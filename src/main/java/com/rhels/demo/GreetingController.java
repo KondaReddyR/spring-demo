@@ -11,7 +11,7 @@ public class GreetingController {
 
     @GetMapping
     public String greeting(Model model) {
-        model.addAttribute("name", "SomeValue");
+        model.addAttribute("name", "ProVisioners");
         model.addAttribute("people", Arrays.asList(
                 new Person("A", 1),
                 new Person("B", 2),
