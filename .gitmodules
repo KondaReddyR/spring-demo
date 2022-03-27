@@ -1,0 +1,4 @@
+[submodule "iac"]
+	path = spring-demo-iac
+	url = https://github.com/KondaReddyR/spring-demo-iac.git
+	branch = main
