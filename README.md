@@ -9,3 +9,16 @@ curl http://localhost:8081
 docker rm -f spring-demo
 ```
 
+Docker multistage build
+
+
+```mermaid
+  graph TD;
+      Start-->Linter[ Lint Dockerfile];
+      Start-->Builder[ Build Jar and Run unit Tests];
+      Builder-->BaseImage[ Create a slim container image];
+      BaseImage-->vulnscan[ Scan image for vulnerabilities]
+      BaseImage-->IntTest[ Run integration tests]
+      vulnscan-->FinalImage[Save Final image]
+      IntTest-->FinalImage[Save Final image]
+```
