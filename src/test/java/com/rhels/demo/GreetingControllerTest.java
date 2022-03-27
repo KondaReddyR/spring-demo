@@ -27,4 +27,11 @@ public class GreetingControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string(Matchers.containsString("ProVisioners")));
     }
+
+    @Test
+    void isHealthy(@Autowired MockMvc mvc) throws Exception {
+        mvc.perform(MockMvcRequestBuilders.get("/actuator/health"))
+                .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
+                .andExpect(MockMvcResultMatchers.content().string(Matchers.equalTo("{\"status\":\"UP\"}")));
+    }
 }

@@ -20,5 +20,5 @@ Docker multistage build
       BaseImage-->vulnscan[ Scan image for vulnerabilities]
       BaseImage-->IntTest[ Run integration tests]
       vulnscan-->FinalImage[Save Final image]
-      IntTest-->FinalImage[Save Final image]
+      IntTest-->FinalImage
 ```
