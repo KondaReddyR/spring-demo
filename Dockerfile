@@ -57,7 +57,8 @@ COPY --from=vulnscan  /tmp/base-image-vulnscan-report /tmp/base-image-vulnscan-r
 RUN java -jar /home/$USERNAME/spring-demo.jar & echo 'Running Application' && \
     sleep 90 && \
     curl http://localhost:8081 && \
-    kill -s 9 `pidof java` && date > /tmp/image-test-date
+#    kill -s 9 `pidof java` && \
+    date > /tmp/image-test-date
 
 FROM base as final
 LABEL description="APP_NAME=spring-demo APP_VERSION=${APP_VERSION}"
