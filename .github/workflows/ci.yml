@@ -22,10 +22,10 @@ jobs:
 
     steps:
       - name: Get the source code
-        uses: actions/checkout@v2
-#        with:
-#          submodules: recursive
-#          token: ${{ secrets.PAT_FOR_PRIVATE_REPOS }}
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          token: ${{ secrets.PAT_FOR_PRIVATE_REPOS }}
 
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v1
