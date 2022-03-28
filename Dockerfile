@@ -55,7 +55,7 @@ FROM base AS test
 ARG USERNAME=appuser
 COPY --from=vulnscan  /tmp/base-image-vulnscan-report /tmp/base-image-vulnscan-report
 RUN java -jar /home/$USERNAME/spring-demo.jar & echo 'Running Application' && \
-    sleep 5 && \
+    sleep 30 && \
     curl http://localhost:8081 && \
     kill -9 `pidof java` && date > /tmp/image-test-date
 

@@ -3,6 +3,7 @@
 * A [Spring-boot Java project](https://spring.io/projects/spring-boot)
 * Dockerfile, Containers images will be scanned using [Trivy](https://aquasecurity.github.io/trivy/).
 * Containers Integration using Docker [multi-stage build](), [GitHub Actions](), [ArgoCD]().
+* [Helm chart](https://github.com/KondaReddyR/spring-demo-iac) is used from [ArgoCD](https://argoproj.github.io/cd/) deploy to Kubernetes.
 
 ## Local setup
 ```shell
