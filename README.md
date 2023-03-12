@@ -1,4 +1,4 @@
-# An example spring-boot application
+# An example spring-boot application with custom JRE
 
 * A [Spring-boot Java project](https://spring.io/projects/spring-boot)
 * Dockerfile, Containers images will be scanned using [Trivy](https://aquasecurity.github.io/trivy/).
@@ -23,7 +23,9 @@ docker rm -f spring-demo
   graph LR;
       Start((Start building <br>container image))-->Linter{Lint </br> Dockerfile};      
       Linter-->Builder[ Build Jar and Run unit Tests];
-      Builder-->BaseImage[ Create a slim container image];
+      Linter-->JRE[Custom JRE image];
+      JRE-->BaseImage[ Create a slim container image];
+      Builder-->BaseImage;
       BaseImage-->vulnscan{ Scan</br> image for</br> vulnerabilities}
       BaseImage-->IntTest{ Run <br>integration <br>tests}
       vulnscan--Yes-->FinalImage((vulnerabilities free<br> final image))
