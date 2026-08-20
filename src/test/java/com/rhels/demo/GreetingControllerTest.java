@@ -32,6 +32,6 @@ public class GreetingControllerTest {
     void isHealthy(@Autowired MockMvc mvc) throws Exception {
         mvc.perform(MockMvcRequestBuilders.get("/actuator/health"))
                 .andExpect(MockMvcResultMatchers.status().is2xxSuccessful())
-                .andExpect(MockMvcResultMatchers.content().string(Matchers.equalTo("{\"status\":\"UP\"}")));
+                .andExpect(MockMvcResultMatchers.jsonPath("$.status").value("UP"));
     }
 }
