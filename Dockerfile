@@ -1,18 +1,18 @@
-FROM ghcr.io/aquasecurity/trivy:0.38.2 as trivy
+FROM ghcr.io/aquasecurity/trivy:0.74.0 AS trivy
 
 
-FROM trivy as scanner
+FROM trivy AS scanner
 RUN mkdir -p /tmp/app
 COPY . /tmp/app
-RUN trivy  fs --exit-code 1 --security-checks vuln,config /tmp/app/Dockerfile > /tmp/Dockerfile-report.log && \
+RUN trivy fs --exit-code 1 --scanners vuln,misconfig /tmp/app/Dockerfile > /tmp/Dockerfile-report.log && \
     cat /tmp/Dockerfile-report.log
 
-FROM docker.io/library/gradle:9-jdk21-alpine AS jre
+FROM docker.io/library/gradle:9-jdk25-alpine AS jre
 COPY java.modules /tmp/java.modules
-RUN apk add binutils # for objcopy, needed by jlink
+RUN apk add --no-cache binutils # for objcopy, needed by jlink
 RUN jlink --strip-debug --add-modules $(cat /tmp/java.modules) --output /root/java
 
-FROM docker.io/library/gradle:9-jdk21-alpine AS builder
+FROM docker.io/library/gradle:9-jdk25-alpine AS builder
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION:-1.0.0}
 ARG USERNAME=gradle
@@ -23,13 +23,13 @@ WORKDIR /home/$USERNAME/
 #RUN mkdir -p /home/gradle/build/libs && \
 #    touch /home/$USERNAME/build/libs/spring-demo-${APP_VERSION}.jar
 
-RUN gradle --info clean build -Pversion=${APP_VERSION} && \
+RUN chmod +x gradlew && ./gradlew --no-daemon --info clean build -Pversion=${APP_VERSION} && \
     ls -l /home/$USERNAME/build/libs/ && \
     ls -l /home/$USERNAME/build/libs/spring-demo-${APP_VERSION}.jar
 
 # RUN jdeps --print-module-deps --ignore-missing-deps /home/$USERNAME/build/libs/spring-demo-${APP_VERSION}.jar > /home/$USERNAME/build/java.modules
 
-FROM docker.io/library/alpine:3.22 AS base
+FROM docker.io/library/alpine:3.24 AS base
 # FROM docker.io/library/ubuntu:22.04 as base
 ARG APP_VERSION
 ENV APP_VERSION=${APP_VERSION:-1.0.0}
@@ -38,7 +38,8 @@ ENV APP_VERSION=${APP_VERSION:-1.0.0}
 ARG USERNAME=appuser
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
-RUN addgroup --gid $USER_GID $USERNAME \
+RUN apk add --no-cache curl \
+&& addgroup --gid $USER_GID $USERNAME \
 && adduser --uid $USER_UID --ingroup $USERNAME $USERNAME --home /home/$USERNAME --shell /bin/sh --disabled-password
 COPY --from=jre /root/java /java
 COPY --from=builder /home/gradle/build/libs/spring-demo-${APP_VERSION}.jar /home/$USERNAME/spring-demo.jar
@@ -60,7 +61,7 @@ COPY --from=base / /base-file-system
 RUN trivy rootfs --exit-code 0  /base-file-system > /tmp/base-image-vulnscan-report && \
     cat /tmp/base-image-vulnscan-report
 
-FROM curlimages/curl:latest AS test
+FROM curlimages/curl:8.21.0 AS test
 ARG USERNAME=appuser
 COPY --from=vulnscan  /tmp/base-image-vulnscan-report /tmp/base-image-vulnscan-report
 ARG APP_VERSION
@@ -73,6 +74,6 @@ RUN /java/bin/java -jar /home/$USERNAME/spring-demo.jar & echo 'Running Applicat
     # kill -s 9 `pidof java` && \
     date > /tmp/image-test-date
 
-FROM base as final
+FROM base AS final
 LABEL description="APP_NAME=spring-demo APP_VERSION=${APP_VERSION}"
 COPY --from=test  /tmp/image-test-date /tmp/image-test-date
